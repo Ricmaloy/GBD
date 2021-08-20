@@ -60,7 +60,6 @@ public:
 
         // Pega quantidade do arquivo e atualiza
         atualizaCabecalho(true);
-        printf("%d\n",cabecalho.quantidade);
 
         /*
             Existe três casos agora, não ter nenhum registro removido então só ir
@@ -114,9 +113,37 @@ public:
     // Nao deve considerar registro removido
     int buscaPalavra(char *palavra) {
         this->substituiBarraNporBarraZero(palavra); // funcao auxiliar substitui terminador por \0
+        fseek(filePonteiro, sizeof(cabecalho) + 1, SEEK_SET);
 
-        // implementar aqui
+        while(!feof(filePonteiro)){
+            int posicao = ftell(this->filePonteiro);
+            char ast; 
+            fread(&ast,sizeof(char),1,filePonteiro);
+            // printf("%c",&ast);
+            if(ast != '*'){
+                int tamanhoRegistro;
 
+                fseek(filePonteiro, posicao, SEEK_SET);
+                fread(&tamanhoRegistro,sizeof(int),1,filePonteiro);
+
+                char *buffer;
+                buffer = (char *) malloc(tamanhoRegistro);
+                fread(buffer,sizeof(char),tamanhoRegistro,filePonteiro);
+                printf("%s\n",buffer);
+
+                if(strcmp(palavra,buffer) == 0) return posicao; 
+            }else{
+                int tamanhoRegistro;
+                int proximoOffset;
+
+                fread(&proximoOffset,sizeof(int),1,filePonteiro);
+                fread(&tamanhoRegistro,sizeof(int),1,filePonteiro);
+
+                int proximoRegistro = posicao + (4 + (tamanhoRegistro - 5) );
+
+                fseek(filePonteiro,  proximoRegistro, SEEK_SET);
+            }
+        }
         // retornar -1 caso nao encontrar
         return -1;
     }
@@ -196,9 +223,9 @@ int main(int argc, char** argv) {
             scanf("%s",palavra);
             int offset = arquivo->buscaPalavra(palavra);
             if (offset >= 0)
-                printf("Encontrou %s na posição %d\n\n",palavra,offset);
+                printf("Encontrou %s na posicao %d\n\n",palavra,offset);
             else
-                printf("Não encontrou %s\n\n",palavra);
+                printf("Nao encontrou %s\n\n",palavra);
         }
         if (opcao != '4') opcao = getchar();
     } while (opcao != '4');
