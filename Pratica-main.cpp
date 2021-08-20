@@ -80,7 +80,7 @@ public:
             unsigned int tamanho;
             fread(&tamanho, sizeof(int), 1, filePonteiro);
             if(tamanho >= (strlen(palavra)+1)) {
-                char deletado = ' ';
+                char deletado = '';
                 unsigned int tamanhoPalavra = strlen(palavra)+1;
                 fseek(filePonteiro,posicaoAsterisco,SEEK_SET);
                 fwrite(&deletado, sizeof(char), 1, filePonteiro);
@@ -96,7 +96,7 @@ public:
         //printf("%d\n",tamanho);
 
         // Escreve se ele foi deletado ou não com a flag *
-        char deletado = ' ';
+        char deletado = '';
         fwrite(&deletado, sizeof(char), 1, filePonteiro);
 
         // Escreve o tamanho do registro no arquivo
