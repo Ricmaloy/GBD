@@ -44,7 +44,9 @@ public:
         cabecalho.disponivel = -1;
 
         // Escreve o endereço da variavel cabeçalho na memoria RAM
-        fwrite(&cabecalho,sizeof(cabecalho),1,filePonteiro);
+        if(fwrite(&cabecalho,sizeof(cabecalho),1,filePonteiro)<1){
+            printf("Não foi possivel escrever o cabeçalho");
+        }
     }
 
     // Destrutor: fecha arquivo
@@ -57,9 +59,8 @@ public:
         substituiBarraNporBarraZero(palavra); // funcao auxiliar substitui terminador por \0
 
         // Pega quantidade do arquivo e atualiza
-        fseek(this->filePonteiro, 0, SEEK_SET);
-        fread(&this->cabecalho, sizeof(cabecalho), 1, this->filePonteiro);
-        this->atualizaCabecalho(true);
+        atualizaCabecalho(true);
+        printf("%d\n",cabecalho.quantidade);
 
         /*
             Existe três casos agora, não ter nenhum registro removido então só ir
@@ -68,35 +69,39 @@ public:
             tra-los e verificar se é possivel colocar o novo registro la se sim
             você coloca e se não der tem que colocar no final do arquivo msm.
         */
-        int proximoDeletado = this->cabecalho.disponivel;
+        int proximoDeletado = cabecalho.disponivel;
         while(proximoDeletado != -1){
-            fseek(this->filePonteiro, proximoDeletado - (sizeof(int) + sizeof(char)), SEEK_SET);
-            int tamanho;
-            fread(&tamanho, sizeof(int), 1, this->filePonteiro);
-            if(tamanho >= strlen(palavra)+1) {
+            fseek(filePonteiro, proximoDeletado, SEEK_SET);
+            unsigned int tamanho;
+            fread(&tamanho, sizeof(int), 1, filePonteiro);
+            if(tamanho >= (strlen(palavra)+1)) {
                 char deletado = ' ';
-                fwrite(&deletado, sizeof(char), 1, this->filePonteiro);
-                fwrite(palavra, tamanho, 1, this->filePonteiro);
+                fwrite(&deletado, sizeof(char), 1, filePonteiro);
+                fwrite(palavra, tamanho, 1, filePonteiro);
             }
-            fseek(this->filePonteiro, sizeof(char), SEEK_CUR);
+            fseek(filePonteiro, sizeof(char), SEEK_CUR);
 
             char* resultado;
-            fread(resultado, tamanho, 1, this->filePonteiro);
+            fread(resultado, tamanho, 1, filePonteiro);
         }
 
         // Reestringe o tamanho minimo de uma palavra
         int tamanhoPalavra = strlen(palavra);
         int tamanho = tamanhoPalavra < (int) sizeof(int) + 1? (int) sizeof(int)+1: tamanhoPalavra;
 
+        //printf("%d\n",tamanho);
+
         // Escreve o tamanho do registro no arquivo
-        fwrite(&tamanho, sizeof(int), 1, this->filePonteiro);
+        if(fwrite(&tamanho, sizeof(int), 1, filePonteiro)<1){
+            //printf("Não foi possivel escrever o tamanho do registro");
+        }
 
         // Escreve se ele foi deletado ou não com a flag *
         char deletado = ' ';
-        fwrite(&deletado, sizeof(char), 1, this->filePonteiro);
+        fwrite(&deletado, sizeof(char), 1, filePonteiro);
 
         // Escreve a palavra em si no arquivo
-        fwrite(palavra, tamanho, 1, this->filePonteiro);
+        fwrite(palavra, sizeof(char),tamanho, filePonteiro);
 
     }
 
@@ -117,11 +122,21 @@ public:
     }
 
     void atualizaCabecalho(bool isAdd){
+        int posicao = ftell(this->filePonteiro);
+
+        fseek(this->filePonteiro, 0, SEEK_SET);
+        fread(&this->cabecalho, sizeof(cabecalho), 1, this->filePonteiro);
+
         if(isAdd){
-            this->cabecalho.quantidade++;
+            this->cabecalho.quantidade+=1;
+            fseek(filePonteiro,0,SEEK_SET);
+            fwrite(&cabecalho, sizeof(cabecalho),1, filePonteiro);
         }else{
-            this->cabecalho.quantidade--;
+            this->cabecalho.quantidade-=1;
+            fseek(filePonteiro,0,SEEK_SET);
+            fwrite(&cabecalho, sizeof(cabecalho),1, filePonteiro);
         }
+        fseek(filePonteiro,posicao,SEEK_SET);
     }
 
 private:
