@@ -70,18 +70,22 @@ public:
         */
         int proximoDeletado = cabecalho.disponivel;
         while(proximoDeletado != -1){
-            fseek(filePonteiro, proximoDeletado, SEEK_SET);
+            //Posiciona o ponteiro no inicio do registro  e pula o *
+            int posicaoAsterisco = ftell(filePonteiro);
+            fseek(filePonteiro, proximoDeletado+1, SEEK_SET);
+            //Pega o proximoDeletado pra n entrar em loop infinito
+            fread(&proximoDeletado, sizeof(int), 1, filePonteiro);
+
             unsigned int tamanho;
             fread(&tamanho, sizeof(int), 1, filePonteiro);
             if(tamanho >= (strlen(palavra)+1)) {
-                char deletado = ' ';
+                char deletado = '';
+                unsigned int tamanhoPalavra = strlen(palavra)+1;
+                fseek(filePonteiro,posicaoAsterisco,SEEK_SET);
                 fwrite(&deletado, sizeof(char), 1, filePonteiro);
+                fwrite(&tamanhoPalavra, sizeof(int),1,filePonteiro);
                 fwrite(palavra, tamanho, 1, filePonteiro);
             }
-            fseek(filePonteiro, sizeof(char), SEEK_CUR);
-
-            char* resultado;
-            fread(resultado, tamanho, 1, filePonteiro);
         }
 
         // Reestringe o tamanho minimo de uma palavra
@@ -90,14 +94,14 @@ public:
 
         //printf("%d\n",tamanho);
 
+        // Escreve se ele foi deletado ou não com a flag *
+        char deletado = '';
+        fwrite(&deletado, sizeof(char), 1, filePonteiro);
+
         // Escreve o tamanho do registro no arquivo
         if(fwrite(&tamanho, sizeof(int), 1, filePonteiro)<1){
             //printf("Não foi possivel escrever o tamanho do registro");
         }
-
-        // Escreve se ele foi deletado ou não com a flag *
-        char deletado = ' ';
-        fwrite(&deletado, sizeof(char), 1, filePonteiro);
 
         // Escreve a palavra em si no arquivo
         fwrite(palavra, sizeof(char),tamanho, filePonteiro);
