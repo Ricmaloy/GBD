@@ -151,7 +151,6 @@ public:
                     buffer[i] = 0;
                 }
                 fread(buffer,sizeof(char),tamanho,filePonteiro);
-                printf("%s\n",buffer);
 
                 if(strcmp(palavra, buffer) == 0){
                     free(buffer);
@@ -164,9 +163,7 @@ public:
                 int offset;
 
                 fread(&offset,sizeof(int),1,filePonteiro);
-                printf("offset %d\n",offset);
                 fread(&tamanho,sizeof(int),1,filePonteiro);
-                printf("tamanho %d\n",tamanho);
 
                 int proximoRegistro = posicao + (sizeof(offset) + tamanho);
 
