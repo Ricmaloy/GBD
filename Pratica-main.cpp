@@ -158,7 +158,6 @@ public:
                 }
                 free(buffer);
             }else{
-                printf("Entrei aqui");
                 int tamanho;
                 int offset;
 
