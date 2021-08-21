@@ -70,21 +70,24 @@ public:
         */
         int proximoDeletado = cabecalho.disponivel;
         while(proximoDeletado != -1){
-            //Posiciona o ponteiro no inicio do registro  e pula o *
-            int posicaoAsterisco = ftell(filePonteiro);
-            fseek(filePonteiro, proximoDeletado+1, SEEK_SET);
-            //Pega o proximoDeletado pra n entrar em loop infinito
-            fread(&proximoDeletado, sizeof(int), 1, filePonteiro);
 
-            unsigned int tamanho;
+            int tamanho;
             fread(&tamanho, sizeof(int), 1, filePonteiro);
-            if(tamanho >= (strlen(palavra)+1)) {
-                unsigned int tamanhoPalavra = strlen(palavra)+1;
-                fseek(filePonteiro,posicaoAsterisco,SEEK_SET);
-                fwrite(&tamanhoPalavra, sizeof(int),1,filePonteiro);
+
+            if(tamanho >= strlen(palavra)+1) {
+                char indice = ' ';
+                fwrite(&indice, sizeof(char), 1, filePonteiro);
                 fwrite(palavra, tamanho, 1, filePonteiro);
             }
+            fseek(filePonteiro, sizeof(char), SEEK_CUR);
         }
+
+        int tam = strlen(palavra) + 1;
+        fwrite(&tam, sizeof(int), 1, filePonteiro);
+        char indice = ' ';
+        fwrite(&indice, sizeof(char), 1, filePonteiro);
+        fwrite(palavra, tam, 1, filePonteiro);
+
 
        // Reestringe o tamanho minimo de uma palavra
         int tamanhoPalavra = strlen(palavra) + 1;
@@ -142,10 +145,10 @@ public:
 
             if(ast != '*'){
                 fseek(filePonteiro, posicao, SEEK_SET);
-                
+
                 int tamanho;
                 fread(&tamanho,sizeof(int),1,filePonteiro);
-                
+
                 char *buffer = (char *)malloc(sizeof(char) * tamanho);
                 for(int i = 0; i<tamanho; i++){
                     buffer[i] = 0;
@@ -170,7 +173,7 @@ public:
             }
             contador++;
         }
-        
+
         // retornar -1 caso nao encontrar
         return -1;
     }
