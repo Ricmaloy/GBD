@@ -101,6 +101,7 @@ public:
 
         // Escreve a palavra em si no arquivo
         int n = fwrite(buffer, sizeof(char),tamanho, filePonteiro);
+        free(buffer);
 
     }
 
@@ -111,7 +112,7 @@ public:
 
         fseek(filePonteiro,offset,SEEK_SET);
         fread(&tamanho, sizeof(int),1,filePonteiro);
-
+        fseek(filePonteiro,offset,SEEK_SET);
         char ast = '*';
         fwrite(&ast,sizeof(char),1,filePonteiro);
         fwrite(&cabecalho.disponivel,sizeof(int),1,filePonteiro);
@@ -167,7 +168,7 @@ public:
                 fread(&tamanho,sizeof(int),1,filePonteiro);
                 printf("tamanho %d\n",tamanho);
 
-                int proximoRegistro = sizeof(offset) + tamanho;
+                int proximoRegistro = posicao + (sizeof(offset) + tamanho);
 
                 fseek(filePonteiro, proximoRegistro,SEEK_SET);
             }
