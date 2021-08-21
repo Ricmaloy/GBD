@@ -44,9 +44,9 @@ public:
         cabecalho.disponivel = -1;
 
         // Escreve o endereço da variavel cabeçalho na memoria RAM
-        if(fwrite(&cabecalho,sizeof(cabecalho),1,filePonteiro)<1){
-            printf("Não foi possivel escrever o cabeçalho");
-        }
+        // if(fwrite(&cabecalho,sizeof(cabecalho),1,filePonteiro)<1){
+        //     printf("Não foi possivel escrever o cabeçalho");
+        // }
     }
 
     // Destrutor: fecha arquivo
@@ -59,7 +59,7 @@ public:
         substituiBarraNporBarraZero(palavra); // funcao auxiliar substitui terminador por \0
 
         // Pega quantidade do arquivo e atualiza
-        atualizaCabecalho(true);
+        //atualizaCabecalho(true);
 
         /*
             Existe três casos agora, não ter nenhum registro removido então só ir
@@ -86,7 +86,7 @@ public:
             }
         }
 
-       // Reestringe o tamanho minimo de uma palavra
+        // Reestringe o tamanho minimo de uma palavra
         int tamanhoPalavra = strlen(palavra) + 1;
         int tamanho = tamanhoPalavra < 5? 5: tamanhoPalavra;
 
@@ -97,7 +97,7 @@ public:
         sprintf(buffer,"%s",palavra);
 
         // Escreve o tamanho do registro no arquivo
-        fwrite(&tamanho, sizeof(int), 1, filePonteiro);
+        //fwrite(&tamanho, sizeof(int), 1, filePonteiro);
 
         // Escreve a palavra em si no arquivo
         int n = fwrite(buffer, sizeof(char),tamanho, filePonteiro);
@@ -106,72 +106,22 @@ public:
 
     // Marca registro como removido, atualiza lista de disponíveis, incluindo o cabecalho
     void removePalavra(int offset) {
-        int tamanho;
-        int posicaoAtual = ftell(filePonteiro);
-
-        fseek(filePonteiro,offset,SEEK_SET);
-        fread(&tamanho, sizeof(int),1,filePonteiro);
-
-        char ast = '*';
-        fwrite(&ast,sizeof(char),1,filePonteiro);
-        fwrite(&cabecalho.disponivel,sizeof(int),1,filePonteiro);
-        fwrite(&tamanho,sizeof(int),1,filePonteiro);
-
-        fseek(filePonteiro, posicaoAtual, SEEK_SET);
-
-        return;
+        // implementar aqui
     }
 
     // BuscaPalavra: retorno é o offset para o registro
     // Nao deve considerar registro removido
     int buscaPalavra(char *palavra) {
         this->substituiBarraNporBarraZero(palavra); // funcao auxiliar substitui terminador por \0
-        fseek(filePonteiro,8,SEEK_SET);
-
+        fseek(filePonteiro,0,SEEK_SET);
         int posicao = ftell(this->filePonteiro);
-        int qtdRegistros = cabecalho.quantidade;
-        int contador = 0;
-
-        char ast;
-
-        while (contador < qtdRegistros)
+        printf("%d\n",posicao);
+        while (1)
         {
-            posicao = ftell(this->filePonteiro);
-            fread(&ast,sizeof(char),1,filePonteiro);
-
-            if(ast != '*'){
-                fseek(filePonteiro, posicao, SEEK_SET);
-                
-                int tamanho;
-                fread(&tamanho,sizeof(int),1,filePonteiro);
-                
-                char *buffer = (char *)malloc(sizeof(char) * tamanho);
-                for(int i = 0; i<tamanho; i++){
-                    buffer[i] = 0;
-                }
-                fread(buffer,sizeof(char),tamanho,filePonteiro);
-                printf("%s\n",buffer);
-
-                if(strcmp(palavra, buffer) == 0){
-                    free(buffer);
-                    return posicao; //Posicao inicial
-                }
-                free(buffer);
-            }else{
-                printf("Entrei aqui");
-                int tamanho;
-                int offset;
-
-                fread(&offset,sizeof(int),1,filePonteiro);
-                printf("offset %d\n",offset);
-                fread(&tamanho,sizeof(int),1,filePonteiro);
-                printf("tamanho %d\n",tamanho);
-
-                int proximoRegistro = sizeof(offset) + tamanho;
-
-                fseek(filePonteiro, proximoRegistro,SEEK_SET);
-            }
-            contador++;
+            char c;
+            fread(&c,sizeof(char),1,filePonteiro);
+            printf("%c",c);
+            getchar();
         }
         
         // retornar -1 caso nao encontrar
@@ -193,18 +143,6 @@ public:
             fseek(filePonteiro,0,SEEK_SET);
             fwrite(&cabecalho, sizeof(cabecalho),1, filePonteiro);
         }
-        fseek(filePonteiro,posicao,SEEK_SET);
-    }
-    void atualizaCabecalhoOffset(int offset){
-        int posicao = ftell(this->filePonteiro);
-
-        fseek(this->filePonteiro, 0, SEEK_SET);
-        fread(&this->cabecalho, sizeof(cabecalho), 1, this->filePonteiro);
-
-        this->cabecalho.disponivel = offset;
-        fseek(filePonteiro,0,SEEK_SET);
-        fwrite(&cabecalho, sizeof(cabecalho),1, filePonteiro);
-
         fseek(filePonteiro,posicao,SEEK_SET);
     }
 
