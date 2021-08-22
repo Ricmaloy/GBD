@@ -69,27 +69,45 @@ public:
             você coloca e se não der tem que colocar no final do arquivo msm.
         */
         int proximoDeletado = cabecalho.disponivel;
+        int posicaoInicial = ftell(filePonteiro);
+        int deletadoAnterior = -1;
         while(proximoDeletado != -1){
+            fseek(filePonteiro,proximoDeletado + 1,SEEK_SET);
+            int posicaoAtual = ftell(filePonteiro);
 
             int tamanho;
+
+            fread(&proximoDeletado, sizeof(int), 1, filePonteiro);
             fread(&tamanho, sizeof(int), 1, filePonteiro);
 
-            // Caso o tamanho do espaço for maior que o da palavra
-            if(tamanho >= strlen(palavra)+1) {
-                char indice = ' ';
-                fwrite(&indice, sizeof(char), 1, filePonteiro);
-                fwrite(palavra, tamanho, 1, filePonteiro);
-            } else {
-                // Caso o tamanho de espaço for igual ao tamanho da palavra
-                int tam = strlen(palavra) + 1;
-                fwrite(&tam, sizeof(int), 1, filePonteiro);
-                char indice = ' ';
-                fwrite(&indice, sizeof(char), 1, filePonteiro);
-                fwrite(palavra, tam, 1, filePonteiro);
-            }
+            if(tamanho >= strlen(palavra) + 1){
+                if(deletadoAnterior != -1){
+                    posicaoAtual = ftell(filePonteiro);
+                    fseek(filePonteiro, deletadoAnterior+1, SEEK_SET);
+                    fwrite(&proximoDeletado, sizeof(int),1,filePonteiro);
+                }
+                char *buffer = (char *)malloc(sizeof(char) * tamanho);
+                for(int i = 0; i<tamanho; i++){
+                    buffer[i] = 0;
+                }
+                fseek(filePonteiro,posicaoAtual - 1,SEEK_SET);
+                sprintf(buffer,"%s",palavra);
 
-            fseek(filePonteiro, sizeof(char), SEEK_CUR);
+                fwrite(&tamanho, sizeof(int), 1, filePonteiro);
+
+                int n = fwrite(buffer, sizeof(char),tamanho, filePonteiro);
+                free(buffer);
+
+                atualizaCabecalhoOffset(proximoDeletado);
+
+                fseek(filePonteiro, posicaoInicial, SEEK_SET);
+                return;
+            } else{
+                deletadoAnterior = ftell(filePonteiro) - 9;
+                fseek(filePonteiro, proximoDeletado, SEEK_SET);
+            }
         }
+        fseek(filePonteiro, posicaoInicial, SEEK_SET);
 
        // Reestringe o tamanho minimo de uma palavra
         int tamanhoPalavra = strlen(palavra) + 1;
@@ -123,6 +141,8 @@ public:
         fwrite(&cabecalho.disponivel,sizeof(int),1,filePonteiro);
         fwrite(&tamanho,sizeof(int),1,filePonteiro);
 
+        atualizaCabecalhoOffset(offset);
+
         fseek(filePonteiro, posicaoAtual, SEEK_SET);
 
         return;
@@ -132,6 +152,7 @@ public:
     // Nao deve considerar registro removido
     int buscaPalavra(char *palavra) {
         this->substituiBarraNporBarraZero(palavra); // funcao auxiliar substitui terminador por \0
+        int posicaoInicial = ftell(filePonteiro);
         fseek(filePonteiro,8,SEEK_SET);
 
         int posicao = ftell(this->filePonteiro);
@@ -159,6 +180,7 @@ public:
 
                 if(strcmp(palavra, buffer) == 0){
                     free(buffer);
+                    fseek(filePonteiro,posicaoInicial,SEEK_SET);
                     return posicao; //Posicao inicial
                 }
                 free(buffer);
@@ -175,7 +197,7 @@ public:
             }
             contador++;
         }
-
+        fseek(filePonteiro,posicaoInicial,SEEK_SET);
         // retornar -1 caso nao encontrar
         return -1;
     }
