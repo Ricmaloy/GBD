@@ -74,20 +74,22 @@ public:
             int tamanho;
             fread(&tamanho, sizeof(int), 1, filePonteiro);
 
+            // Caso o tamanho do espaço for maior que o da palavra
             if(tamanho >= strlen(palavra)+1) {
                 char indice = ' ';
                 fwrite(&indice, sizeof(char), 1, filePonteiro);
                 fwrite(palavra, tamanho, 1, filePonteiro);
+            } else {
+                // Caso o tamanho de espaço for igual ao tamanho da palavra
+                int tam = strlen(palavra) + 1;
+                fwrite(&tam, sizeof(int), 1, filePonteiro);
+                char indice = ' ';
+                fwrite(&indice, sizeof(char), 1, filePonteiro);
+                fwrite(palavra, tam, 1, filePonteiro);
             }
+
             fseek(filePonteiro, sizeof(char), SEEK_CUR);
         }
-
-        int tam = strlen(palavra) + 1;
-        fwrite(&tam, sizeof(int), 1, filePonteiro);
-        char indice = ' ';
-        fwrite(&indice, sizeof(char), 1, filePonteiro);
-        fwrite(palavra, tam, 1, filePonteiro);
-
 
        // Reestringe o tamanho minimo de uma palavra
         int tamanhoPalavra = strlen(palavra) + 1;
