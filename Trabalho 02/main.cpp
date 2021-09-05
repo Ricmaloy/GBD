@@ -6,7 +6,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <string>
 #include <fstream>
+#include <iostream>
+#include <map>
+#include <list>
 
 using namespace std;
 
@@ -36,12 +40,58 @@ void imprimeLinha(int offset) {
 // classe que implementa a lista invertida
 class listaInvertida {
 public:
+    map<string, int> secondariesIndexes;
+    FILE *indexFile;
+
     // construtor
-    listaInvertida() { }
+    listaInvertida() {
+        indexFile = fopen("invertedList.txt", "wb+");
+
+        if (indexFile == NULL){
+            printf("\n\n Nao consegui abrir arquivo de indices. Sinto muito.\n\n\n\n");
+
+            return;
+        }
+    }
     // destrutor
-    ~listaInvertida() { }
+    ~listaInvertida() {
+        fclose(indexFile);
+    }
+
     // adiciona palavra na estrutura
-    void adiciona(char *palavra, int offset) { }
+    void adiciona(char *palavra, int offset) {
+        // cria um buffer para a palavra a ser inserida
+        string bufferPalavra(palavra);
+
+        // caso a palavra a ser inserida já exista
+        if(!secondariesIndexes[bufferPalavra]) {
+            // pega o offset do indice na lista
+            int lastOccurrenceOffset = secondariesIndexes[bufferPalavra];
+
+            // pega a posicao onde o index será escrito
+            fseek(indexFile, 0, SEEK_END);
+            int newOccurrenceOffset = ftell(indexFile);
+
+            // troca o indice da lista pelo o indice da nova ocorrencia
+            secondariesIndexes[bufferPalavra] = newOccurrenceOffset;
+
+            // atualiza na lista o offset do indice
+            indexFile << offset << "/" << lastOccurrenceOffset << "/" << endl;
+
+        }   // caso a palavra a ser inserida nao exista
+        else {
+            // pega a posicao onde o index será escrito
+            fseek(indexFile, 0, SEEK_END);
+            int newOccurrenceOffset = ftell(indexFile);
+
+            // insere a posicao no indice secundario
+            secondariesIndexes[bufferPalavra] = newOccurrenceOffset;
+
+            // escreve na lista o offset do indice
+            indexFile << offset << '/' << -1 << '/' << endl;
+        }
+    }
+
     // realiza busca, retornando vetor de offsets que referenciam a palavra
     int * busca(char *palavra, int *quantidade) {
         // substituir pelo resultado da busca na lista invertida
