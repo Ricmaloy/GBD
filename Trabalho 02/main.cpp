@@ -76,7 +76,12 @@ public:
             secondariesIndexes[bufferPalavra] = newOccurrenceOffset;
 
             // atualiza na lista o offset do indice
-            indexFile << offset << "/" << lastOccurrenceOffset << "/" << endl;
+            fwrite(&offset,sizeof(int),1,indexFile);
+            fwrite("/",sizeof(char),1,indexFile);
+            fwrite(&lastOccurrenceOffset,sizeof(int),1,indexFile);
+            fwrite("/",sizeof(char),1,indexFile);
+            fwrite("\n",sizeof(char),1,indexFile);
+            fflush(indexFile);
 
         }   // caso a palavra a ser inserida nao exista
         else {
@@ -88,7 +93,12 @@ public:
             secondariesIndexes[bufferPalavra] = newOccurrenceOffset;
 
             // escreve na lista o offset do indice
-            indexFile << offset << '/' << -1 << '/' << endl;
+            fwrite(&offset,sizeof(int),1,indexFile);
+            fwrite("/",sizeof(char),1,indexFile);
+            fwrite("-1",sizeof(int),1,indexFile);
+            fwrite("/",sizeof(char),1,indexFile);
+            fwrite("\n",sizeof(char),1,indexFile);
+            fflush(indexFile);
         }
     }
 
