@@ -1,6 +1,12 @@
 /*
  * File:   main.cpp
  * Created on August 25, 2121
+ * Author: Leandro Fontellas Laurito
+ * Matricula: 11721BCC045
+ * Author: Ricardo
+ * Matricula: 11821BCC004
+ * Author: Miguel
+ * Matricula: XXXXXXXXXXX
  */
 
 #include <stdlib.h>
