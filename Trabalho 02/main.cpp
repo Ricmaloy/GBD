@@ -5,8 +5,8 @@
  * Matricula: 11721BCC045
  * Author: Ricardo
  * Matricula: 11821BCC004
- * Author: Miguel
- * Matricula: XXXXXXXXXXX
+ * Author: Miguel Sanches Rocha
+ * Matricula: 11811BCC001
  */
 
 #include <stdlib.h>
@@ -69,12 +69,12 @@ public:
         // cria um buffer para a palavra a ser inserida
         string bufferPalavra(palavra);
 
-        // caso a palavra a ser inserida já exista
+        // caso a palavra a ser inserida jï¿½ exista
         if(!secondariesIndexes[bufferPalavra]) {
             // pega o offset do indice na lista
             int lastOccurrenceOffset = secondariesIndexes[bufferPalavra];
 
-            // pega a posicao onde o index será escrito
+            // pega a posicao onde o index serï¿½ escrito
             fseek(indexFile, 0, SEEK_END);
             int newOccurrenceOffset = ftell(indexFile);
 
@@ -86,7 +86,7 @@ public:
 
         }   // caso a palavra a ser inserida nao exista
         else {
-            // pega a posicao onde o index será escrito
+            // pega a posicao onde o index serï¿½ escrito
             fseek(indexFile, 0, SEEK_END);
             int newOccurrenceOffset = ftell(indexFile);
 
@@ -112,14 +112,14 @@ public:
         // zera a quantidade de
         *quantidade = 0;
 
-        // caso a palavra não esteja na lista de indices
+        // caso a palavra nï¿½o esteja na lista de indices
         if(lastOccurrenceOffset == 0){
             return offsets;
         }
 
         // enquanto nao encontra o ultimo registro com indice -1 (ultimo registro da lista)
         while(lastOccurrenceOffset != -1) {
-            // pula para a posiçao do proximo registro
+            // pula para a posiÃ§ao do proximo registro
             indexFile.seekg(lastOccurrenceOffset);
 
             string str;
@@ -148,7 +148,7 @@ public:
         //Copia os dados da lista de offsets para o array de offsets
         copy(offsetsArray.begin(),offsetsArray.end(),offsets);
 
-        // Retorna o ponteiro para a posiçao de inicio
+        // Retorna o ponteiro para a posiï¿½ao de inicio
         indexFile.seekg(indexFile.tellg());
 
         // Retorna a lista com os offsets
