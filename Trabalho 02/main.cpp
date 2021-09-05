@@ -1,6 +1,12 @@
 /*
  * File:   main.cpp
  * Created on August 25, 2121
+ * Author: Leandro Fontellas Laurito
+ * Matricula: 11721BCC045
+ * Author: Ricardo
+ * Matricula: 11821BCC004
+ * Author: Miguel
+ * Matricula: XXXXXXXXXXX
  */
 
 #include <stdlib.h>
@@ -63,12 +69,12 @@ public:
         // cria um buffer para a palavra a ser inserida
         string bufferPalavra(palavra);
 
-        // caso a palavra a ser inserida já exista
+        // caso a palavra a ser inserida jï¿½ exista
         if(!secondariesIndexes[bufferPalavra]) {
             // pega o offset do indice na lista
             int lastOccurrenceOffset = secondariesIndexes[bufferPalavra];
 
-            // pega a posicao onde o index será escrito
+            // pega a posicao onde o index serï¿½ escrito
             fseek(indexFile, 0, SEEK_END);
             int newOccurrenceOffset = ftell(indexFile);
 
@@ -85,7 +91,7 @@ public:
 
         }   // caso a palavra a ser inserida nao exista
         else {
-            // pega a posicao onde o index será escrito
+            // pega a posicao onde o index serï¿½ escrito
             fseek(indexFile, 0, SEEK_END);
             int newOccurrenceOffset = ftell(indexFile);
 
@@ -104,21 +110,58 @@ public:
 
     // realiza busca, retornando vetor de offsets que referenciam a palavra
     int * busca(char *palavra, int *quantidade) {
-        // substituir pelo resultado da busca na lista invertida
-        quantidade[0] = 10;
-        int *offsets = new int[10];
-        int i = 0;
-        // exemplo: retornar os primeiros 10 offsets da palavra "terra"
-        offsets[i++] = 58;
-        offsets[i++] = 69;
-        offsets[i++] = 846;
-        offsets[i++] = 943;
-        offsets[i++] = 1083;
-        offsets[i++] = 1109;
-        offsets[i++] = 1569;
-        offsets[i++] = 1792;
-        offsets[i++] = 2041;
-        offsets[i++] = 2431;
+        // cria um buffer para a palavra a ser buscada
+        string bufferPalavra(palavra);
+
+        // pega o offset do ultimo indice na lista
+        int lastOccurrenceOffset = secondariesIndexes[bufferPalavra];
+
+        list <int> offsetsArray;
+        int *offsets;
+
+        // zera a quantidade de
+        *quantidade = 0;
+
+        // caso a palavra nï¿½o esteja na lista de indices
+        if(lastOccurrenceOffset == 0){
+            return offsets;
+        }
+
+        // enquanto nao encontra o ultimo registro com indice -1 (ultimo registro da lista)
+        while(lastOccurrenceOffset != -1) {
+            // pula para a posiï¿½ao do proximo registro
+            indexFile.seekg(lastOccurrenceOffset);
+
+            string str;
+            getline(indexFile, str);
+
+            // pega o valor do offset da palavra e o proximo offset
+            string offsetPalavra = str.substr(0, str.find("/"));
+            string proximoOffset = str.substr(0, str.find("/"));
+
+            // deixa a string apenas com o texto
+            str.erase(0, str.find("/") + 1);
+
+            // atualiza o ultimo offset para o proximo indice
+            lastOccurrenceOffset = stoi(proximoOffset);
+
+            // adiciona o offset nas listas de offsets
+            offsetsArray.insert(offsetsArray.end(), stoi(offsetPalavra));
+
+            // incrementa a quantidade das palavras
+            *quantidade++;
+        }
+
+        //Aloca o espaco para a lista no array de offsets
+        offsets = (int*)malloc(sizeof(int)*offsetsArray.size());
+
+        //Copia os dados da lista de offsets para o array de offsets
+        copy(offsetsArray.begin(),offsetsArray.end(),offsets);
+
+        // Retorna o ponteiro para a posiï¿½ao de inicio
+        indexFile.seekg(indexFile.tellg());
+
+        // Retorna a lista com os offsets
         return offsets;
     }
 private:
